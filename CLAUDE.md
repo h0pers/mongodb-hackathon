@@ -12,6 +12,7 @@ Hackathon app: citizens report city issues (text + photo + location), a local mo
 cd backend && uv sync
 uv run uvicorn app.main:app --reload --port 8000
 uv run python -m app.classifier "Street light is out"   # classify without the server
+uv run pytest                                            # needs Atlas; tests/conftest.py sets MONGODB_DB=dublinfix_test
 
 # frontend
 cd frontend && npm ci
@@ -29,7 +30,8 @@ npm run lint
 
 ## Data rules
 
-- One collection: `dublinfix.reports`. Tests use database `dublinfix_test`.
+- One collection: `dublinfix.reports`. Tests use database `dublinfix_test` and share one session `TestClient` from `tests/conftest.py` (the `AsyncMongoClient` binds to the first event loop). Tests wipe `dublinfix_test.reports` after each test, so two people running the suite at once interfere.
+- Bbox queries use `$geoWithin` + `$geometry` Polygon, not `$box`: `$box` cannot use the 2dsphere index.
 - `location` is a GeoJSON Point with coordinates `[lng, lat]` (longitude first), backed by a `2dsphere` index.
 - No `createdAt`: insert time comes from the ObjectId. No `status` field: reports have no lifecycle.
 - Model fields (`category`, `department`, `urgency`, `safetyHazard`, `confidence`) are null when the classifier failed. A submitted report must never be lost because the model is down.
