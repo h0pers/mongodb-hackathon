@@ -8,6 +8,6 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 <template>
   <TooltipProvider ignore-non-keyboard-focus>
     <RouterView />
-    <Toaster position="top-center" />
+    <Toaster position="top-center" close-button close-button-position="top-right" />
   </TooltipProvider>
 </template>
