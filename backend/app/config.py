@@ -8,5 +8,10 @@ class Settings(BaseSettings):
     ollaya_model: str = "laya:multilingual"
     ollaya_timeout: float = 30.0
 
+    mongodb_uri: str
+    mongodb_db: str = "dublinfix"
+    media_dir: str = "media"
+    max_photo_bytes: int = 5_000_000
+
 
 settings = Settings()
