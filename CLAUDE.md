@@ -13,6 +13,7 @@ cd backend && uv sync
 uv run uvicorn app.main:app --reload --port 8000
 uv run python -m app.classifier "Street light is out"   # classify without the server
 uv run pytest                                            # needs Atlas; tests/conftest.py sets MONGODB_DB=dublinfix_test
+docker compose up --build                                # API in Docker; Ollaya stays on the host, photos in backend/media
 
 # frontend
 cd frontend && npm ci
