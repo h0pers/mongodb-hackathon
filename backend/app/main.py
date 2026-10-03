@@ -4,14 +4,16 @@ import os
 from contextlib import asynccontextmanager, suppress
 
 import httpx
+import pymongo
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from pymongo.errors import PyMongoError
 
 from app.classifier import Classification, ClassifierError, classify, warm_up
 from app.config import settings
-from app.db import ensure_indexes
+from app.db import client, ensure_indexes
 from app.events import router as events_router
 from app.events import watch_reports
 from app.routes_read import router as read_router
@@ -59,18 +61,26 @@ class ClassifyRequest(BaseModel):
 
 @app.get("/health")
 async def health():
+    result = {"status": "ok", "model": settings.ollaya_model}
     try:
-        async with httpx.AsyncClient(base_url=settings.ollaya_url, timeout=3) as client:
-            tags = (await client.get("/api/tags")).json()
+        # Bound the ping so /health answers fast instead of waiting out server selection.
+        with pymongo.timeout(3):
+            await client.admin.command("ping")
+        result["mongodb"] = "reachable"
+    except PyMongoError:
+        result["mongodb"] = "unreachable"
+        result["status"] = "degraded"
+    try:
+        async with httpx.AsyncClient(base_url=settings.ollaya_url, timeout=3) as ollaya:
+            tags = (await ollaya.get("/api/tags")).json()
     except httpx.HTTPError:
-        return {"status": "degraded", "ollaya": "unreachable", "model": settings.ollaya_model}
+        result["ollaya"] = "unreachable"
+        result["status"] = "degraded"
+        return result
     installed = {m["name"].removesuffix(":latest") for m in tags.get("models", [])}
-    return {
-        "status": "ok",
-        "ollaya": "reachable",
-        "model": settings.ollaya_model,
-        "modelInstalled": settings.ollaya_model.removesuffix(":latest") in installed,
-    }
+    result["ollaya"] = "reachable"
+    result["modelInstalled"] = settings.ollaya_model.removesuffix(":latest") in installed
+    return result
 
 
 @app.post("/classify", response_model=Classification)
