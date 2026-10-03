@@ -1,0 +1,11 @@
+[project]
+name = "dublinfix-backend"
+version = "0.1.0"
+description = "Dublin Fix API: receives city issue reports and classifies them with a local Ollama model"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "httpx>=0.27",
+    "pydantic-settings>=2.6",
+]
