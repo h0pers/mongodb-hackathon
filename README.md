@@ -1,5 +1,7 @@
 # DublinFix AI
 
+![DublinFix AI: real-time map of city issues processed and classified by decision models and MongoDB Atlas](docs/images/title.png)
+
 **A live map of city issues, sorted by AI.**
 
 Residents report city problems with a short text, a photo and their location. A local decision model sorts each report in under a second, and MongoDB Atlas stores the reports and powers a live public map where anyone can see what has been reported nearby.
@@ -10,9 +12,13 @@ Built for the MongoDB Dublin Student Builder Day, 3 October 2026.
 
 ## The problem
 
+![The problems it solves: litter, dirt, road damage, flooding and more](docs/images/problems.png)
+
 Reports about potholes, dirty streets, litter, flooding or unsafe areas arrive as free text. Someone has to read each one, decide what it is, judge how urgent it is and pass it to the right team. A dangerous problem can wait in the queue behind minor ones, and residents can't see whether anyone has already reported it.
 
 ## How it works
+
+![Report a problem with a photo and a sentence; it appears classified on the live map](docs/images/solution.png)
 
 1. **Report.** A resident writes what is wrong and attaches a photo. The location is taken from the device and can be corrected by moving the pin.
 2. **Classify.** A local decision model answers fixed questions about the text: what kind of problem it is, how urgent it is, and how likely it is that someone gets hurt. The department follows from the category.
@@ -51,6 +57,8 @@ The department is looked up from the category rather than asked of the model, so
 The model is `laya:multilingual`. On our 24 labelled test reports it chose the right category for 22, in about 0.5 s per report on a laptop CPU.
 
 ## What MongoDB does
+
+![Why we chose MongoDB: GeoJSON built in, live by default with change streams, flexible but validated](docs/images/why-mongodb.png)
 
 - **Document model.** A report, its location and the model's answers live in one document. Adding a field needs no migration.
 - **Geospatial queries.** A `2dsphere` index on `location` lets the map load only the pins inside the visible area.
