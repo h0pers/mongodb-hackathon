@@ -6,11 +6,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 const layer = defineModel('layer', { type: String, required: true })
 const dark = defineModel('dark', { type: Boolean, required: true })
-const itemClass = 'h-9 px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
+const itemClass = 'h-11 px-3 md:h-9 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground'
 </script>
 
 <template>
-  <header class="flex h-14 items-center gap-3 border-b bg-background px-4">
+  <header class="flex h-(--header-height) items-center gap-3 border-b bg-background px-4 pt-[env(safe-area-inset-top)]">
     <div class="flex min-w-0 items-baseline gap-2">
       <h1 class="text-lg font-extrabold tracking-tight">DublinFix AI</h1>
     </div>
@@ -36,7 +36,7 @@ const itemClass = 'h-9 px-3 data-[state=on]:bg-primary data-[state=on]:text-prim
         <Button
           variant="outline"
           size="icon"
-          class="bg-card"
+          class="size-11 bg-card md:size-9"
           :aria-label="dark ? 'Switch to light mode' : 'Switch to dark mode'"
           @click="dark = !dark"
         >

@@ -12,7 +12,7 @@ const open = defineModel('open', { type: Boolean, default: false })
 
 const track = ref(null)
 const current = ref(0)
-const navClass = 'text-white hover:bg-white/10 hover:text-white'
+const navClass = 'size-11 text-white hover:bg-white/10 hover:text-white'
 
 function go(index) {
   const next = Math.min(Math.max(index, 0), props.items.length - 1)

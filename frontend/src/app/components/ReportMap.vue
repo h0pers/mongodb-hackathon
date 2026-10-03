@@ -25,6 +25,8 @@ const areaData = () => ({
 setWorkerUrl(workerUrl)
 
 const INK = '#11161d'
+const TAP_TOLERANCE = 16
+const PLATE_OFFSET = 26
 const styleUrl = () => `https://tiles.openfreemap.org/styles/${props.dark ? 'dark' : 'positron'}`
 const areaColor = () => (props.dark ? '#ffb21e' : INK)
 const container = ref(null)
@@ -161,10 +163,25 @@ onMounted(() => {
     attributionControl: { compact: true },
   })
   map.on('style.load', addLayers)
-  map.on('click', 'reports-pins', (e) => emit('select', e.features[0].properties.id))
+  map.touchZoomRotate.disableRotation()
+  map.touchPitch.disable()
+  map.dragRotate.disable()
   map.on('click', (e) => {
-    if (props.layer === 'heat') emit('area', [e.lngLat.lng, e.lngLat.lat])
-    else if (!map.queryRenderedFeatures(e.point, { layers: ['reports-pins'] }).length) emit('select', null)
+    if (props.layer === 'heat') return emit('area', [e.lngLat.lng, e.lngLat.lat])
+    const { x, y } = e.point
+    const hits = map.queryRenderedFeatures(
+      [
+        [x - TAP_TOLERANCE, y - TAP_TOLERANCE],
+        [x + TAP_TOLERANCE, y + TAP_TOLERANCE],
+      ],
+      { layers: ['reports-pins'] },
+    )
+    const distance = (feature) => {
+      const pin = map.project(feature.geometry.coordinates)
+      return Math.hypot(pin.x - x, pin.y - PLATE_OFFSET - y)
+    }
+    const nearest = hits.sort((a, b) => distance(a) - distance(b))[0]
+    emit('select', nearest?.properties.id ?? null)
   })
   map.on('mouseenter', 'reports-pins', () => (map.getCanvas().style.cursor = 'pointer'))
   map.on('mouseleave', 'reports-pins', () => (map.getCanvas().style.cursor = ''))

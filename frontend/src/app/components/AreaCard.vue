@@ -20,14 +20,20 @@ const summary = computed(() => {
 </script>
 
 <template>
-  <Card class="max-h-[50dvh] gap-2 overflow-y-auto border-0 py-4 shadow-float" aria-live="polite">
+  <Card class="max-h-[50dvh] gap-2 overflow-x-hidden overflow-y-auto border-0 py-4 shadow-float" aria-live="polite">
     <CardHeader class="px-4">
       <CardTitle>{{ summary }}</CardTitle>
       <CardDescription>
         {{ reports.length ? `${today} need fixing today` : 'Tap somewhere else on the heatmap to look around.' }}
       </CardDescription>
       <CardAction>
-        <Button variant="ghost" size="icon-sm" aria-label="Close" class="-mt-1 -mr-2" @click="emit('close')">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Close"
+          class="-mt-2 -mr-3 size-11 md:-mt-1 md:-mr-2 md:size-8"
+          @click="emit('close')"
+        >
           <X />
         </Button>
       </CardAction>

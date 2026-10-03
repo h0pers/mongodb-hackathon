@@ -97,13 +97,13 @@ function onSubmitted({ report, merged }) {
 
     <p
       v-if="layer === 'heat' && !store.area && !store.selected"
-      class="pointer-events-none absolute top-17 left-1/2 z-10 -translate-x-1/2 rounded-md bg-panel px-3 py-2 text-sm font-bold whitespace-nowrap text-led shadow-float"
+      class="pointer-events-none absolute top-[calc(var(--header-height)+0.75rem)] left-1/2 z-10 -translate-x-1/2 rounded-md bg-panel px-3 py-2 text-sm font-bold whitespace-nowrap text-led shadow-float"
     >
       Tap the map to see problems nearby
     </p>
 
     <div v-if="picking" class="pointer-events-none absolute inset-0 z-10 grid place-items-center">
-      <p class="absolute top-17 rounded-md bg-panel px-3 py-2 text-sm font-bold text-led shadow-float">
+      <p class="absolute top-[calc(var(--header-height)+0.75rem)] rounded-md bg-panel px-3 py-2 text-sm font-bold text-led shadow-float">
         Move the map to place the pin
       </p>
       <svg width="28" height="40" viewBox="0 0 28 40" class="-translate-y-1/2" aria-hidden="true">

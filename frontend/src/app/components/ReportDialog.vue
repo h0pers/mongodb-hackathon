@@ -55,6 +55,11 @@ watch(open, (isOpen) => {
   if (isOpen && !location.value) useMyLocation()
 })
 
+function revealField(event) {
+  if (desktop.value || !event.target.matches('textarea, input')) return
+  setTimeout(() => event.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)
+}
+
 function onMedia(event) {
   store.draft.media = event.target.files[0] ?? null
   event.target.value = ''
@@ -85,7 +90,11 @@ async function send() {
         </component>
       </component>
 
-      <form class="grid gap-5 overflow-y-auto px-4 pb-6 md:px-0 md:pb-0" @submit.prevent="send">
+      <form
+        class="grid min-w-0 gap-5 overflow-x-hidden overflow-y-auto px-4 md:px-0"
+        @submit.prevent="send"
+        @focusin="revealField"
+      >
         <div class="grid gap-2">
           <Label for="description">What's the problem?</Label>
           <Textarea
@@ -112,7 +121,7 @@ async function send() {
               type="button"
               variant="secondary"
               size="icon-sm"
-              class="absolute -top-2 -right-2 rounded-full border"
+              class="absolute -top-3 -right-3 size-10 rounded-full border md:-top-2 md:-right-2 md:size-8"
               aria-label="Remove attachment"
               @click="store.draft.media = null"
             >
@@ -135,7 +144,7 @@ async function send() {
               <p class="font-bold">{{ locationTitle }}</p>
               <p class="truncate text-muted-foreground tabular-nums">{{ locationDetail }}</p>
             </div>
-            <Button type="button" variant="outline" size="sm" @click="emit('pick')">
+            <Button type="button" variant="outline" size="sm" class="h-10 md:h-8" @click="emit('pick')">
               {{ location ? 'Move pin' : 'Pick on map' }}
             </Button>
           </div>
@@ -143,7 +152,7 @@ async function send() {
             v-if="location?.source === 'map'"
             type="button"
             variant="link"
-            class="h-auto justify-start p-0"
+            class="h-auto min-h-11 justify-start p-0 md:min-h-0"
             @click="useMyLocation"
           >
             <LocateFixed />
@@ -153,10 +162,14 @@ async function send() {
 
         <p v-if="error" role="alert" class="text-sm text-destructive">{{ error }}</p>
 
-        <Button type="submit" class="h-12 text-base font-bold" :disabled="!canSend">
-          <Spinner v-if="sending" />
-          {{ sending ? 'Sending…' : 'Send report' }}
-        </Button>
+        <div
+          class="sticky bottom-0 -mx-4 bg-background px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] md:static md:mx-0 md:p-0"
+        >
+          <Button type="submit" class="h-12 w-full text-base font-bold" :disabled="!canSend">
+            <Spinner v-if="sending" />
+            {{ sending ? 'Sending…' : 'Send report' }}
+          </Button>
+        </div>
       </form>
     </component>
   </component>

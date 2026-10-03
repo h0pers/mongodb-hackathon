@@ -6,7 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 </script>
 
 <template>
-  <TooltipProvider>
+  <TooltipProvider ignore-non-keyboard-focus>
     <RouterView />
     <Toaster position="top-center" />
   </TooltipProvider>

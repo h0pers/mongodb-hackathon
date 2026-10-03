@@ -17,6 +17,18 @@ const media = ref([])
 const loading = ref(false)
 const viewerOpen = ref(false)
 const viewerStart = ref(0)
+const text = ref(null)
+const expanded = ref(false)
+const clamped = ref(false)
+
+watch(
+  () => props.report.description,
+  () => {
+    expanded.value = false
+    clamped.value = text.value ? text.value.scrollHeight > text.value.clientHeight + 1 : false
+  },
+  { immediate: true, flush: 'post' },
+)
 
 const triage = computed(() => props.report.triage)
 const urgency = computed(() => URGENCY[triage.value?.urgency.value])
@@ -50,7 +62,7 @@ function view(index) {
 </script>
 
 <template>
-  <Card class="max-h-[50dvh] gap-3 overflow-y-auto border-0 py-4 shadow-float" aria-live="polite">
+  <Card class="max-h-[50dvh] gap-3 overflow-x-hidden overflow-y-auto border-0 py-4 shadow-float" aria-live="polite">
     <CardHeader class="px-4">
       <CardTitle class="flex items-center gap-2">
         <span
@@ -61,27 +73,47 @@ function view(index) {
       </CardTitle>
       <CardDescription v-if="triage">{{ DEPARTMENTS[triage.department.value] }}</CardDescription>
       <CardAction>
-        <Button variant="ghost" size="icon-sm" aria-label="Close" class="-mt-1 -mr-2" @click="emit('close')">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Close"
+          class="-mt-2 -mr-3 size-11 md:-mt-1 md:-mr-2 md:size-8"
+          @click="emit('close')"
+        >
           <X />
         </Button>
       </CardAction>
     </CardHeader>
 
     <CardContent class="grid gap-3 px-4">
-      <p class="text-[15px] leading-snug">{{ report.description }}</p>
-
-      <div v-if="loading && !media.length" class="flex gap-2">
-        <Skeleton v-for="n in Math.min(report.media_count, 3)" :key="n" class="size-20 shrink-0 rounded-md" />
+      <div>
+        <p
+          ref="text"
+          class="text-[15px] leading-snug wrap-anywhere"
+          :class="{ 'line-clamp-4': !expanded }"
+          :title="report.description"
+        >
+          {{ report.description }}
+        </p>
+        <button
+          v-if="clamped"
+          type="button"
+          class="-mx-1 mt-0.5 min-h-11 px-1 text-sm font-bold underline-offset-4 hover:underline md:min-h-0"
+          :aria-expanded="expanded"
+          @click="expanded = !expanded"
+        >
+          {{ expanded ? 'Show less' : 'Show more' }}
+        </button>
       </div>
-      <ul
-        v-else-if="media.length"
-        class="-mx-4 flex snap-x gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
-        aria-label="Photos and videos"
-      >
-        <li v-for="(item, index) in media" :key="item.id" class="shrink-0 snap-start">
+
+      <div v-if="loading && !media.length" class="grid grid-cols-4 gap-2">
+        <Skeleton v-for="n in Math.min(report.media_count, 4)" :key="n" class="aspect-square rounded-md" />
+      </div>
+      <ul v-else-if="media.length" class="grid grid-cols-4 gap-2" aria-label="Photos and videos">
+        <li v-for="(item, index) in media" :key="item.id">
           <button
             type="button"
-            class="relative block size-20 overflow-hidden rounded-md bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            class="relative block aspect-square w-full overflow-hidden rounded-md bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             :aria-label="`Open ${item.type} ${index + 1} of ${media.length}`"
             @click="view(index)"
           >
