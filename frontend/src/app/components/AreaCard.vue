@@ -20,8 +20,8 @@ const summary = computed(() => {
 </script>
 
 <template>
-  <Card class="max-h-[50dvh] gap-2 overflow-x-hidden overflow-y-auto border-0 py-4 shadow-float" aria-live="polite">
-    <CardHeader class="px-4">
+  <Card class="max-h-[50dvh] gap-2 overflow-hidden border-0 pt-4 pb-0 shadow-float" aria-live="polite">
+    <CardHeader class="shrink-0 px-4">
       <CardTitle>{{ summary }}</CardTitle>
       <CardDescription>
         {{ reports.length ? `${today} need fixing today` : 'Tap somewhere else on the heatmap to look around.' }}
@@ -39,7 +39,7 @@ const summary = computed(() => {
       </CardAction>
     </CardHeader>
 
-    <CardContent class="flex items-center gap-3 px-4 pt-1 pb-2">
+    <CardContent class="flex shrink-0 items-center gap-3 px-4 pt-1 pb-3">
       <span class="text-sm text-muted-foreground">Range</span>
       <Slider
         :model-value="[radius]"
@@ -53,7 +53,10 @@ const summary = computed(() => {
       <span class="w-14 text-right text-sm font-bold tabular-nums">{{ distance }}</span>
     </CardContent>
 
-    <CardContent v-if="reports.length" class="min-w-0 px-2">
+    <CardContent
+      v-if="reports.length"
+      class="-mt-2 min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain border-t px-2 pt-1 pb-3"
+    >
       <ul class="grid grid-cols-[minmax(0,1fr)]">
         <li v-for="report in reports" :key="report.id" class="min-w-0">
           <button
