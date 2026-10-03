@@ -4,7 +4,7 @@ import { ChevronRight, X } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
-import { CATEGORIES, URGENCY, timeAgo, urgencyOf } from '@/lib/triage'
+import { URGENCY, categoryLabel, timeAgo, urgencyOf } from '@/lib/triage'
 
 const props = defineProps({ reports: { type: Array, required: true } })
 const radius = defineModel('radius', { type: Number, required: true })
@@ -72,7 +72,7 @@ const summary = computed(() => {
               <span class="min-w-0 overflow-hidden">
                 <span class="block truncate text-sm font-bold">
                   {{ URGENCY[urgencyOf(report)]?.label ?? 'Being sorted' }}
-                  · {{ CATEGORIES[report.triage?.category.value] ?? 'New report' }}
+                  · {{ report.triage ? categoryLabel(report.triage.category.value) : 'New report' }}
                 </span>
                 <span class="block truncate text-sm text-muted-foreground">{{ report.description }}</span>
               </span>

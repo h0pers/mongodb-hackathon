@@ -8,7 +8,7 @@ export const useReportsStore = defineStore('reports', () => {
   const reports = ref([])
   const selectedId = ref(null)
   const droppingId = ref(null)
-  const draft = reactive({ description: '', media: null, location: null })
+  const draft = reactive({ description: '', photo: null, location: null })
 
   const areaCenter = ref(null)
   const areaRadius = ref(300)
@@ -51,16 +51,16 @@ export const useReportsStore = defineStore('reports', () => {
   }
 
   function connect() {
-    return subscribeReports(upsert)
+    return subscribeReports(upsert, () => load().catch(() => {}))
   }
 
   async function submit() {
-    const { location, description, media } = draft
-    const result = await createReport({ description, media, lat: location.lat, lng: location.lng })
-    upsert(result.report)
-    selectedId.value = result.report.id
-    Object.assign(draft, { description: '', media: null, location: null })
-    return result
+    const { location, description, photo } = draft
+    const report = await createReport({ text: description, photo, lat: location.lat, lng: location.lng })
+    upsert(report)
+    selectedId.value = report.id
+    Object.assign(draft, { description: '', photo: null, location: null })
+    return report
   }
 
   function select(id) {

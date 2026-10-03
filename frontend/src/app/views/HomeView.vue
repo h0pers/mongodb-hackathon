@@ -13,7 +13,7 @@ import { useReportsStore } from '@/app/stores/reports'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { CATEGORIES, URGENCY } from '@/lib/triage'
+import { URGENCY, categoryLabel } from '@/lib/triage'
 
 const store = useReportsStore()
 const { position, status, locate } = useGeolocation()
@@ -60,19 +60,13 @@ function finishPicking(confirmed) {
   reporting.value = true
 }
 
-function onSubmitted({ report, merged }) {
+function onSubmitted(report) {
   map.value.flyTo(report.location.coordinates, 16)
   const t = report.triage
-  const sorted = t ? `${URGENCY[t.urgency.value].label} · ${CATEGORIES[t.category.value]}` : 'Waiting to be sorted'
-  if (merged) {
-    toast.success('Added to an existing report', {
-      description: `${report.report_count} people have reported this. ${sorted}.`,
-    })
-  } else {
-    toast.success('Report sent', {
-      description: report.needs_review ? `${sorted}. A person will double-check the sorting.` : `${sorted}.`,
-    })
-  }
+  const sorted = t ? `${URGENCY[t.urgency.value].label} · ${categoryLabel(t.category.value)}` : 'Waiting to be sorted'
+  toast.success('Report sent', {
+    description: report.needs_review ? `${sorted}. A person will double-check the sorting.` : `${sorted}.`,
+  })
 }
 </script>
 

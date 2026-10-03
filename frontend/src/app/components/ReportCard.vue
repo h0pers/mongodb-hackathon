@@ -6,15 +6,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { getReportMedia } from '@/lib/api'
-import { CATEGORIES, DEPARTMENTS, URGENCY, timeAgo } from '@/lib/triage'
+import { URGENCY, categoryLabel, timeAgo } from '@/lib/triage'
 
 const props = defineProps({ report: { type: Object, required: true } })
 const emit = defineEmits(['close'])
 
-const media = ref([])
-const loading = ref(false)
+const media = computed(() => props.report.media)
 const viewerOpen = ref(false)
 const viewerStart = ref(0)
 const text = ref(null)
@@ -37,24 +34,6 @@ const hazard = computed(() => {
   return answer ? `${answer.value ? 'Likely' : 'Unlikely'} ${Math.round(answer.p * 100)}%` : '—'
 })
 
-watch(
-  () => [props.report.id, props.report.media_count],
-  async ([id], [previousId] = []) => {
-    if (id !== previousId) media.value = []
-    if (!props.report.media_count) return
-    loading.value = true
-    try {
-      const items = await getReportMedia(id)
-      if (props.report.id === id) media.value = items
-    } catch {
-      media.value = []
-    } finally {
-      loading.value = false
-    }
-  },
-  { immediate: true },
-)
-
 function view(index) {
   viewerStart.value = index
   viewerOpen.value = true
@@ -69,9 +48,9 @@ function view(index) {
           class="size-3.5 shrink-0 rounded-[3px] ring-1 ring-border"
           :style="{ background: urgency?.color ?? '#ffffff' }"
         />
-        {{ urgency ? `${urgency.label} · ${CATEGORIES[triage.category.value]}` : 'Being sorted' }}
+        {{ urgency ? `${urgency.label} · ${categoryLabel(triage.category.value)}` : 'Being sorted' }}
       </CardTitle>
-      <CardDescription v-if="triage">{{ DEPARTMENTS[triage.department.value] }}</CardDescription>
+      <CardDescription v-if="triage?.department.value">{{ triage.department.value }}</CardDescription>
       <CardAction>
         <Button
           variant="ghost"
@@ -106,10 +85,7 @@ function view(index) {
         </button>
       </div>
 
-      <div v-if="loading && !media.length" class="grid grid-cols-4 gap-2">
-        <Skeleton v-for="n in Math.min(report.media_count, 4)" :key="n" class="aspect-square rounded-md" />
-      </div>
-      <ul v-else-if="media.length" class="grid grid-cols-4 gap-2" aria-label="Photos and videos">
+      <ul v-if="media.length" class="grid grid-cols-4 gap-2" aria-label="Photos">
         <li v-for="(item, index) in media" :key="item.id">
           <button
             type="button"

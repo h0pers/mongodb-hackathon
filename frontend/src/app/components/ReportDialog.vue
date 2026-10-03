@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { useGeolocation } from '@/app/composables/useGeolocation'
 import { useReportsStore } from '@/app/stores/reports'
+import { shrinkPhoto } from '@/lib/photo'
 
 const open = defineModel('open', { type: Boolean, default: false })
 const emit = defineEmits(['pick', 'submitted'])
@@ -17,7 +18,7 @@ const emit = defineEmits(['pick', 'submitted'])
 const store = useReportsStore()
 const { status, locate } = useGeolocation()
 const desktop = useMediaQuery('(min-width: 768px)')
-const mediaUrl = useObjectUrl(() => store.draft.media)
+const photoUrl = useObjectUrl(() => store.draft.photo)
 const fileInput = ref(null)
 const sending = ref(false)
 const error = ref('')
@@ -25,11 +26,19 @@ const error = ref('')
 const ui = computed(() =>
   desktop.value
     ? { Root: Dialog, Content: DialogContent, Header: DialogHeader, Title: DialogTitle, Description: DialogDescription }
-    : { Root: Drawer, Content: DrawerContent, Header: DrawerHeader, Title: DrawerTitle, Description: DrawerDescription },
+    : {
+        Root: Drawer,
+        Content: DrawerContent,
+        Header: DrawerHeader,
+        Title: DrawerTitle,
+        Description: DrawerDescription,
+      },
 )
 
 const location = computed(() => store.draft.location)
-const canSend = computed(() => store.draft.description.trim().length >= 5 && location.value && !sending.value)
+const canSend = computed(
+  () => store.draft.description.trim().length >= 5 && store.draft.photo && location.value && !sending.value,
+)
 
 const locationTitle = computed(() => {
   if (location.value) return location.value.source === 'map' ? 'Pinned on the map' : 'Your current location'
@@ -60,9 +69,15 @@ function revealField(event) {
   setTimeout(() => event.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)
 }
 
-function onMedia(event) {
-  store.draft.media = event.target.files[0] ?? null
+async function onPhoto(event) {
+  const file = event.target.files[0]
   event.target.value = ''
+  if (!file) return
+  try {
+    store.draft.photo = await shrinkPhoto(file)
+  } catch {
+    error.value = "Couldn't read that photo. Try another one."
+  }
 }
 
 async function send() {
@@ -73,7 +88,7 @@ async function send() {
     open.value = false
     emit('submitted', result)
   } catch (e) {
-    error.value = `${e.message}. Check your connection and try again.`
+    error.value = e instanceof TypeError ? "Couldn't reach the server. Check your connection and try again." : e.message
   } finally {
     sending.value = false
   }
@@ -108,31 +123,25 @@ async function send() {
         </div>
 
         <div class="grid gap-2">
-          <Label>Photo or video <span class="font-normal text-muted-foreground">(optional)</span></Label>
-          <div v-if="mediaUrl" class="relative w-fit">
-            <video
-              v-if="store.draft.media.type.startsWith('video/')"
-              :src="mediaUrl"
-              muted
-              class="h-24 rounded-md object-cover"
-            />
-            <img v-else :src="mediaUrl" alt="Selected photo" class="h-24 rounded-md object-cover" />
+          <Label>Photo</Label>
+          <div v-if="photoUrl" class="relative w-fit">
+            <img :src="photoUrl" alt="Selected photo" class="h-24 rounded-md object-cover" />
             <Button
               type="button"
               variant="secondary"
               size="icon-sm"
               class="absolute -top-3 -right-3 size-10 rounded-full border md:-top-2 md:-right-2 md:size-8"
-              aria-label="Remove attachment"
-              @click="store.draft.media = null"
+              aria-label="Remove photo"
+              @click="store.draft.photo = null"
             >
               <X />
             </Button>
           </div>
           <Button v-else type="button" variant="outline" class="h-11 justify-start" @click="fileInput.click()">
             <Camera />
-            Add a photo or video
+            Add a photo
           </Button>
-          <input ref="fileInput" type="file" accept="image/*,video/*" class="hidden" @change="onMedia" />
+          <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onPhoto" />
         </div>
 
         <div class="grid gap-2">

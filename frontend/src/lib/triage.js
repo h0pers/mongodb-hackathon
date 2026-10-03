@@ -5,20 +5,15 @@ export const URGENCY = [
 ]
 
 export const CATEGORIES = {
-  road: 'Road',
-  lighting: 'Lighting',
-  traffic_signal: 'Traffic signal',
-  waste: 'Waste',
-  water: 'Water',
+  road_damage: 'Road damage',
+  dirt: 'Dirt',
+  litter: 'Litter',
+  water_drainage: 'Water drainage',
+  unsafe_area: 'Unsafe area',
   other: 'Other',
 }
 
-export const DEPARTMENTS = {
-  roads: 'Roads',
-  public_lighting: 'Public lighting',
-  waste_management: 'Waste management',
-  water_services: 'Water services',
-}
+export const categoryLabel = (value) => CATEGORIES[value] ?? value
 
 export const urgencyOf = (report) => report.triage?.urgency.value ?? -1
 
