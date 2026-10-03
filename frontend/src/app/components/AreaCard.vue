@@ -53,9 +53,9 @@ const summary = computed(() => {
       <span class="w-14 text-right text-sm font-bold tabular-nums">{{ distance }}</span>
     </CardContent>
 
-    <CardContent v-if="reports.length" class="px-2">
-      <ul class="grid">
-        <li v-for="report in reports" :key="report.id">
+    <CardContent v-if="reports.length" class="min-w-0 px-2">
+      <ul class="grid grid-cols-[minmax(0,1fr)]">
+        <li v-for="report in reports" :key="report.id" class="min-w-0">
           <button
             type="button"
             class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
@@ -66,13 +66,13 @@ const summary = computed(() => {
               :style="{ background: URGENCY[urgencyOf(report)]?.color ?? '#ffffff' }"
             />
             <span class="min-w-0 flex-1">
-              <span class="block text-sm font-bold">
+              <span class="block truncate text-sm font-bold">
                 {{ URGENCY[urgencyOf(report)]?.label ?? 'Being sorted' }}
                 · {{ CATEGORIES[report.triage?.category.value] ?? 'New report' }}
               </span>
               <span class="block truncate text-sm text-muted-foreground">{{ report.description }}</span>
             </span>
-            <span class="shrink-0 text-right text-xs text-muted-foreground tabular-nums">
+            <span class="shrink-0 text-right text-xs whitespace-nowrap text-muted-foreground tabular-nums">
               <span class="block font-bold text-foreground">{{ report.report_count }}×</span>
               {{ timeAgo(report.created_at) }}
             </span>
