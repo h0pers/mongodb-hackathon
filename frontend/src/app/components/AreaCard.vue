@@ -58,25 +58,27 @@ const summary = computed(() => {
         <li v-for="report in reports" :key="report.id" class="min-w-0">
           <button
             type="button"
-            class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+            class="block w-full overflow-hidden rounded-md px-2 py-2 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
             @click="emit('select', report.id)"
           >
-            <span
-              class="size-3 shrink-0 rounded-[3px] ring-1 ring-border"
-              :style="{ background: URGENCY[urgencyOf(report)]?.color ?? '#ffffff' }"
-            />
-            <span class="min-w-0 flex-1">
-              <span class="block truncate text-sm font-bold">
-                {{ URGENCY[urgencyOf(report)]?.label ?? 'Being sorted' }}
-                · {{ CATEGORIES[report.triage?.category.value] ?? 'New report' }}
+            <span class="grid grid-cols-[0.75rem_minmax(0,1fr)_auto_1rem] items-center gap-3">
+              <span
+                class="size-3 rounded-[3px] ring-1 ring-border"
+                :style="{ background: URGENCY[urgencyOf(report)]?.color ?? '#ffffff' }"
+              />
+              <span class="min-w-0 overflow-hidden">
+                <span class="block truncate text-sm font-bold">
+                  {{ URGENCY[urgencyOf(report)]?.label ?? 'Being sorted' }}
+                  · {{ CATEGORIES[report.triage?.category.value] ?? 'New report' }}
+                </span>
+                <span class="block truncate text-sm text-muted-foreground">{{ report.description }}</span>
               </span>
-              <span class="block truncate text-sm text-muted-foreground">{{ report.description }}</span>
+              <span class="text-right text-xs whitespace-nowrap text-muted-foreground tabular-nums">
+                <span class="block font-bold text-foreground">{{ report.report_count }}×</span>
+                {{ timeAgo(report.created_at) }}
+              </span>
+              <ChevronRight class="size-4 text-muted-foreground" />
             </span>
-            <span class="shrink-0 text-right text-xs whitespace-nowrap text-muted-foreground tabular-nums">
-              <span class="block font-bold text-foreground">{{ report.report_count }}×</span>
-              {{ timeAgo(report.created_at) }}
-            </span>
-            <ChevronRight class="size-4 shrink-0 text-muted-foreground" />
           </button>
         </li>
       </ul>
