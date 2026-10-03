@@ -1,4 +1,4 @@
-# Dublin Fix backend
+# DublinFix AI backend
 
 FastAPI service that classifies city issue reports with a local [Ollaya](https://ollaya.dev) decision model.
 

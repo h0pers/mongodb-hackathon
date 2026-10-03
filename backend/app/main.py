@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 
 import httpx
@@ -8,12 +9,15 @@ from pydantic import BaseModel, Field
 
 from app.classifier import Classification, ClassifierError, classify, warm_up
 from app.config import settings
+from app.db import ensure_indexes
 
 log = logging.getLogger("dublinfix")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    os.makedirs(settings.media_dir, exist_ok=True)
+    await ensure_indexes()
     try:
         await warm_up()
     except httpx.HTTPError as exc:
@@ -21,7 +25,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Dublin Fix API", lifespan=lifespan)
+app = FastAPI(title="DublinFix AI API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
