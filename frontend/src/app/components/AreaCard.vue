@@ -1,0 +1,79 @@
+<script setup>
+import { computed } from 'vue'
+import { ChevronRight, X } from '@lucide/vue'
+import { Button } from '@/components/ui/button'
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import { CATEGORIES, URGENCY, timeAgo, urgencyOf } from '@/lib/triage'
+
+const props = defineProps({ reports: { type: Array, required: true } })
+const radius = defineModel('radius', { type: Number, required: true })
+const emit = defineEmits(['select', 'close'])
+
+const distance = computed(() => (radius.value >= 1000 ? `${radius.value / 1000} km` : `${radius.value} m`))
+const today = computed(() => props.reports.filter((r) => urgencyOf(r) === 2).length)
+const summary = computed(() => {
+  const count = props.reports.length
+  if (!count) return `Nothing reported within ${distance.value}`
+  return `${count} ${count === 1 ? 'problem' : 'problems'} within ${distance.value}`
+})
+</script>
+
+<template>
+  <Card class="max-h-[50dvh] gap-2 overflow-y-auto border-0 py-4 shadow-float" aria-live="polite">
+    <CardHeader class="px-4">
+      <CardTitle>{{ summary }}</CardTitle>
+      <CardDescription>
+        {{ reports.length ? `${today} need fixing today` : 'Tap somewhere else on the heatmap to look around.' }}
+      </CardDescription>
+      <CardAction>
+        <Button variant="ghost" size="icon-sm" aria-label="Close" class="-mt-1 -mr-2" @click="emit('close')">
+          <X />
+        </Button>
+      </CardAction>
+    </CardHeader>
+
+    <CardContent class="flex items-center gap-3 px-4 pt-1 pb-2">
+      <span class="text-sm text-muted-foreground">Range</span>
+      <Slider
+        :model-value="[radius]"
+        :min="100"
+        :max="1000"
+        :step="50"
+        aria-label="Search range"
+        class="flex-1"
+        @update:model-value="([value]) => (radius = value)"
+      />
+      <span class="w-14 text-right text-sm font-bold tabular-nums">{{ distance }}</span>
+    </CardContent>
+
+    <CardContent v-if="reports.length" class="px-2">
+      <ul class="grid">
+        <li v-for="report in reports" :key="report.id">
+          <button
+            type="button"
+            class="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
+            @click="emit('select', report.id)"
+          >
+            <span
+              class="size-3 shrink-0 rounded-[3px] ring-1 ring-border"
+              :style="{ background: URGENCY[urgencyOf(report)]?.color ?? '#ffffff' }"
+            />
+            <span class="min-w-0 flex-1">
+              <span class="block text-sm font-bold">
+                {{ URGENCY[urgencyOf(report)]?.label ?? 'Being sorted' }}
+                · {{ CATEGORIES[report.triage?.category.value] ?? 'New report' }}
+              </span>
+              <span class="block truncate text-sm text-muted-foreground">{{ report.description }}</span>
+            </span>
+            <span class="shrink-0 text-right text-xs text-muted-foreground tabular-nums">
+              <span class="block font-bold text-foreground">{{ report.report_count }}×</span>
+              {{ timeAgo(report.created_at) }}
+            </span>
+            <ChevronRight class="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </li>
+      </ul>
+    </CardContent>
+  </Card>
+</template>

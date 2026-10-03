@@ -12,14 +12,19 @@
     "format": "prettier --write src"
   },
   "dependencies": {
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "@lucide/vue": "^1.51.0",
+    "@vueuse/core": "^15.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-vue-next": "^0.577.0",
+    "embla-carousel-vue": "^8.6.0",
+    "maplibre-gl": "^6.11.2",
     "pinia": "^3.0.4",
-    "reka-ui": "^2.9.7",
+    "reka-ui": "^2.10.5",
     "tailwind-merge": "^3.5.0",
     "vue": "^3.5.25",
-    "vue-router": "^5.0.3"
+    "vue-router": "^5.0.3",
+    "vue-sonner": "^2.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
