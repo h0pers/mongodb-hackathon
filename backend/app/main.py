@@ -5,11 +5,13 @@ from contextlib import asynccontextmanager
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from app.classifier import Classification, ClassifierError, classify, warm_up
 from app.config import settings
 from app.db import ensure_indexes
+from app.routes_write import router as write_router
 
 log = logging.getLogger("dublinfix")
 
@@ -33,6 +35,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(write_router)
+# check_dir=False: media_dir is created in lifespan, after this line runs.
+app.mount("/media", StaticFiles(directory=settings.media_dir, check_dir=False), name="media")
 
 
 class ClassifyRequest(BaseModel):

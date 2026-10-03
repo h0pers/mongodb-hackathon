@@ -30,5 +30,9 @@ class Report(BaseModel):
     confidence: dict[str, float] | None = None
 
 
+# Filled by the classifier, never by clients. All null when the model was down.
+MODEL_FIELDS = ("category", "department", "urgency", "safetyHazard", "confidence")
+
+
 def to_report(doc: dict[str, Any]) -> Report:
     return Report.model_validate({**doc, "_id": str(doc["_id"])})
